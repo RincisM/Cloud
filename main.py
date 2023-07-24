@@ -3,9 +3,21 @@ import pickle
 import numpy as np
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+origins = [
+   "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class PredictionInput(BaseModel):
     ph: float
@@ -18,8 +30,11 @@ class PredictionInput(BaseModel):
     trihalomethanes: float
     turbidity: float
 
+@app.get("/*")
+async def index():
+    return
 
-@app.post("/")
+@app.post("/pred")
 async def root(payload: PredictionInput):
     with open("model.pickle", "rb") as f:
         model = pickle.load(f)
